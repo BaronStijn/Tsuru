@@ -3,6 +3,7 @@
 #include "dynlibs/os/functions.h"
 #include "dynlibs/gx2/functions.h"
 #include "tsuru/save/system/savemgrsystem.h"
+#include "hooks.h"
 
 /*
     ______
@@ -58,3 +59,6 @@ void initialize() {
 void initialize2() {
     SaveMgrSystem::initSystem();
 }
+
+tyHook(TestHook1, 0x11111111, "realfunction100", BranchHook::Type_b);
+tyHook(TestHook2, 0x22222222, "realfunction200", BranchHook::Type_bl);
