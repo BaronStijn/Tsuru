@@ -3,7 +3,8 @@
 #include "dynlibs/os/functions.h"
 #include "dynlibs/gx2/functions.h"
 #include "tsuru/save/system/savemgrsystem.h"
-#include "hooks.h"
+#include "loader/hooks.h"
+#include "loader/patches.h"
 
 /*
     ______
@@ -26,6 +27,7 @@ extern "C" funcPtr _ctors[];
 OsSpecifics osSpecifics;
 extern u32 BLOSDynLoad_Acquire;
 extern u32 BOSDynLoad_FindExport;
+extern u32 coreinitHandle;
 
 void initialize() {
     // Duplicate call check
@@ -50,6 +52,62 @@ void initialize() {
     InitOSFunctionPointers();
     InitGX2FunctionPointers();
 
+    $(void)()(
+        //*------------
+        //* Step 1: Find start of hooks array
+        //*------------
+        char hookName[12] = { 0 };
+        u32 firstHookAddr = 0xFFFFFFFF;
+        //u32 numHooks = 0;
+
+        for (u32 i = 0; ; i++) {
+            __os_snprintf(hookName, 12, "_tHook_%04d", i);
+
+            PRINT("Searching for hook: ", hookName);
+
+            u32 addr;
+            if (OSDynLoad_FindExport(coreinitHandle, true, hookName, &addr)) {
+                PRINT("Stop!");
+                //numHooks = i;
+                break;
+            }
+
+            if (addr < firstHookAddr) {
+                firstHookAddr = addr;
+            }
+        }
+
+        if (firstHookAddr == 0xFFFFFFFF) {
+            PRINT("No hooks found!");
+            return;
+        }
+
+        PRINT("First hook found at: ", fmt::hex, firstHookAddr);
+
+        //*------------
+        //* Step 2: Apply hooks
+        //*------------
+        tloader::BranchHook* hooks = (tloader::BranchHook*)firstHookAddr;
+        for (u32 i = 0; i < 2; i++) {
+            const tloader::BranchHook& hook = hooks[i];
+
+            u32 target = 0;
+            OSDynLoad_FindExport(coreinitHandle, false, hook.target, &target);
+        
+            u32 instr = (target - (u32)hook.source) & 0x03FFFFFC;
+
+            switch (hook.type) {
+                case tloader::BranchHook::Type_b:  instr |= 0x48000000; break;
+                case tloader::BranchHook::Type_bl: instr |= 0x48000001; break;
+                default: PRINT(LogColor::Red, "INVALID HOOK TYPE FOR HOOK AT: ", fmt::hex, (u32)hook.source); continue;
+            }
+
+            *hook.source = instr;
+        }
+    ) applyHooks;
+
+    applyHooks();
+
     PRINT("OSDynLoad_Acquire address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_Acquire);
     PRINT("OSDynLoad_FindExport address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_FindExport);
 
@@ -60,5 +118,9 @@ void initialize2() {
     SaveMgrSystem::initSystem();
 }
 
-tyHook(TestHook1, 0x11111111, "realfunction100", BranchHook::Type_b);
-tyHook(TestHook2, 0x22222222, "realfunction200", BranchHook::Type_bl);
+tHook(TestHook1, 0x11111111, "realfunction100", tloader::BranchHook::Type_b);
+tHook(TestHook2, 0x22222222, "realfunction200", tloader::BranchHook::Type_bl);
+tPatch16(TestPatch1, 0x33333333, 0x4444, 0x6699);
+tPatch16(TestPatch1, 0x38383838, 0x6699, 0x4444);
+tPatch32(TestPatch2, 0x55555555, 0x88888888, 0x99999999);
+tPatch64(TestPatch2, 0x50505050, 0x6666666677ULL);
