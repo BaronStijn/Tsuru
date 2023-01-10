@@ -118,8 +118,10 @@ void initialize2() {
     SaveMgrSystem::initSystem();
 }
 
-tHook(TestHook1, 0x11111111, "realfunction100", tloader::BranchHook::Type_b); tHook(TestHook1, 0x11111112, "realfunction200", tloader::BranchHook::Type_bl);
-tPatch16(TestPatch1, 0x33333333, 0x666); tPatch16(TestPatch1, 0x33333334, 0x9966, 0x4242);
-tPatch32(TestPatch2, 0x55555555, 0x88888888, 0x99999999);
-tPatch64(TestPatch2, 0x50505050, 0x6666666677ULL);
-tPatch64(TestPatch2, 0x50505051, 0x6666666688ULL);
+tHook(0x11111111, "realfunction100", tloader::BranchHook::Type_b);
+tHook(0x11111112, "realfunction200", tloader::BranchHook::Type_bl);
+tPatch16(0x33333333, 0x666);
+tPatch16(0x33333334, 0x9966, 0x4242);
+tPatch32(0x55555555, 0x88888888, 0x99999999);
+tPatch64(0x50505050, 0x6666666677ULL);
+tPatch64(0x50505051, 0x6666666688ULL);
