@@ -1,6 +1,7 @@
 #include "log.h"
 #include "types.h"
 #include "dynlibs/os/functions.h"
+#include "dynlibs/fs/functions.h"
 #include "dynlibs/gx2/functions.h"
 #include "tsuru/save/system/savemgrsystem.h"
 #include "loader/hooks.h"
@@ -51,11 +52,16 @@ void initialize() {
     InitOSFunctionPointers();
     InitGX2FunctionPointers();
 
+    PRINT("OSDynLoad_Acquire address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_Acquire);
+    PRINT("OSDynLoad_FindExport address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_FindExport);
+
+    return;
+
     //*------------
     //* Step 0: Acquire RPL
     //*------------
     u32 rpl = 0;
-    if (OSDynLoad_Acquire("shit.rpl", &rpl)) {
+    if (OSDynLoad_Acquire("a.rpl", &rpl)) {
         PRINT(LogColor::Red, "Unable to acquire rpl!"); // TODO: Make this print the rpl name
     }
 
@@ -68,7 +74,7 @@ void initialize() {
         return;
     }
 
-    PRINT(".loaderdata found at: ", fmt::hex, patches);
+    PRINT(".loaderdata found at: ", fmt::hex, (u32)patches);
 
     //*------------
     //* Step 2: Apply hooks
@@ -88,7 +94,7 @@ void initialize() {
                 switch (hook->type) {
                     case tloader::BranchHook::Type_b:  instr |= 0x48000000; break;
                     case tloader::BranchHook::Type_bl: instr |= 0x48000001; break;
-                    default: PRINT(LogColor::Red, "INVALID HOOK TYPE FOR HOOK AT: ", fmt::hex, (u32)hook.source); continue;
+                    default: PRINT(LogColor::Red, "INVALID HOOK TYPE FOR HOOK AT: ", fmt::hex, (u32)hook->source); continue;
                 }
 
                 *hook->source = instr;
@@ -113,11 +119,6 @@ void initialize() {
             }
         }
     }
-
-    PRINT("OSDynLoad_Acquire address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_Acquire);
-    PRINT("OSDynLoad_FindExport address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_FindExport);
-
-    PRINT(LogColor::Green, "Custom code initialization complete!");
 }
 
 void initialize2() {
