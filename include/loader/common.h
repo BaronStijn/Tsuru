@@ -1,9 +1,12 @@
 #pragma once
 #include "types.h"
 
+#define _tLoaderSectionNameData ".loaderdata"
+#define _tLoaderSectionNameRodata ".loaderconst"
+
 #define _tLoaderSectionStart                                                                                        \
-    CUSTOM_SECTION(data, ".loaderdata");                                                                            \
-    CUSTOM_SECTION(rodata, ".loaderconst")
+    CUSTOM_SECTION(data, _tLoaderSectionNameData);                                                                            \
+    CUSTOM_SECTION(rodata, _tLoaderSectionNameRodata)
 
 #define _tLoaderSectionEnd                                                                                          \
     CUSTOM_SECTION(data, default);                                                                                  \

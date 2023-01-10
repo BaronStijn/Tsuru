@@ -6,7 +6,7 @@ namespace tloader {
     class Patch {
     public:
         u32 magic;
-        u32* addr;
+        void* addr;
         u16 count;
         u16 dataSize; // in bits
         void* data;

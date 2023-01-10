@@ -27,7 +27,6 @@ extern "C" funcPtr _ctors[];
 OsSpecifics osSpecifics;
 extern u32 BLOSDynLoad_Acquire;
 extern u32 BOSDynLoad_FindExport;
-extern u32 coreinitHandle;
 
 void initialize() {
     // Duplicate call check
@@ -52,61 +51,68 @@ void initialize() {
     InitOSFunctionPointers();
     InitGX2FunctionPointers();
 
-    $(void)()(
-        //*------------
-        //* Step 1: Find start of hooks array
-        //*------------
-        char hookName[12] = { 0 };
-        u32 firstHookAddr = 0xFFFFFFFF;
-        //u32 numHooks = 0;
+    //*------------
+    //* Step 0: Acquire RPL
+    //*------------
+    u32 rpl = 0;
+    if (OSDynLoad_Acquire("shit.rpl", &rpl)) {
+        PRINT(LogColor::Red, "Unable to acquire rpl!"); // TODO: Make this print the rpl name
+    }
 
-        for (u32 i = 0; ; i++) {
-            __os_snprintf(hookName, 12, "_tHook_%04d", i);
+    //*------------
+    //* Step 1: Find start of hooks array
+    //*------------
+    struct {u32 _[4];}* patches;
+    if (OSDynLoad_FindExport(rpl, true, _tLoaderSectionNameData, &patches)) {
+        PRINT(LogColor::Red, "Unable to find .loaderdata!");
+        return;
+    }
 
-            PRINT("Searching for hook: ", hookName);
+    PRINT(".loaderdata found at: ", fmt::hex, patches);
 
-            u32 addr;
-            if (OSDynLoad_FindExport(coreinitHandle, true, hookName, &addr)) {
-                PRINT("Stop!");
-                //numHooks = i;
+    //*------------
+    //* Step 2: Apply hooks
+    //*------------
+    for (u32 i = 0;; i++) {
+        switch (patches[i]._[0]) {
+            default: PRINT("Loader complete, applied ", i, " hooks."); return;
+                
+            case tloader::DataMagic::BranchHook: {
+                tloader::BranchHook* hook = (tloader::BranchHook*)&patches[i];
+
+                u32 target = 0;
+                OSDynLoad_FindExport(rpl, false, hook->target, &target);
+
+                u32 instr = (target - (u32)hook->source) & 0x03FFFFFC;
+                    
+                switch (hook->type) {
+                    case tloader::BranchHook::Type_b:  instr |= 0x48000000; break;
+                    case tloader::BranchHook::Type_bl: instr |= 0x48000001; break;
+                    default: PRINT(LogColor::Red, "INVALID HOOK TYPE FOR HOOK AT: ", fmt::hex, (u32)hook.source); continue;
+                }
+
+                *hook->source = instr;
+
                 break;
             }
 
-            if (addr < firstHookAddr) {
-                firstHookAddr = addr;
+            case tloader::DataMagic::Patch: {
+                tloader::Patch* patch = (tloader::Patch*)&patches[i];
+                
+                for (u16 i = 0; patch->count != 0; i++, patch->count--) {
+                    switch (patch->dataSize) {
+                        case 8:  *((u8*) patch->addr) = ((u8*) patch->data)[i]; *((u32*)&patch->addr) += 1; break;
+                        case 16: *((u16*)patch->addr) = ((u16*)patch->data)[i]; *((u32*)&patch->addr) += 2; break;
+                        case 32: *((u32*)patch->addr) = ((u32*)patch->data)[i]; *((u32*)&patch->addr) += 4; break;
+                        case 64: *((u64*)patch->addr) = ((u64*)patch->data)[i]; *((u32*)&patch->addr) += 8; break;
+                        default: PRINT(LogColor::Red, "INVALID PATCH UNIT SIZE FOR PATCH AT: ", fmt::hex, (u32)patch->addr); break;
+                    }
+                }
+  
+                break;
             }
         }
-
-        if (firstHookAddr == 0xFFFFFFFF) {
-            PRINT("No hooks found!");
-            return;
-        }
-
-        PRINT("First hook found at: ", fmt::hex, firstHookAddr);
-
-        //*------------
-        //* Step 2: Apply hooks
-        //*------------
-        tloader::BranchHook* hooks = (tloader::BranchHook*)firstHookAddr;
-        for (u32 i = 0; i < 2; i++) {
-            const tloader::BranchHook& hook = hooks[i];
-
-            u32 target = 0;
-            OSDynLoad_FindExport(coreinitHandle, false, hook.target, &target);
-        
-            u32 instr = (target - (u32)hook.source) & 0x03FFFFFC;
-
-            switch (hook.type) {
-                case tloader::BranchHook::Type_b:  instr |= 0x48000000; break;
-                case tloader::BranchHook::Type_bl: instr |= 0x48000001; break;
-                default: PRINT(LogColor::Red, "INVALID HOOK TYPE FOR HOOK AT: ", fmt::hex, (u32)hook.source); continue;
-            }
-
-            *hook.source = instr;
-        }
-    ) applyHooks;
-
-    applyHooks();
+    }
 
     PRINT("OSDynLoad_Acquire address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_Acquire);
     PRINT("OSDynLoad_FindExport address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_FindExport);
