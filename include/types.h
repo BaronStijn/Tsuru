@@ -26,6 +26,7 @@
 
 #define forceinline __attribute__((always_inline))
 #define packed      __attribute__((packed))
+#define weak        __attribute__((weak))
 #define aligned(x)  __attribute__((aligned(x)))
 
 #define PRAGMA(x)   _Pragma(#x)

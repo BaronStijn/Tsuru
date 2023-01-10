@@ -30,12 +30,12 @@ static_assert(sizeof(tloader::BranchHook) == sizeof(tloader::PointerHook), "Bran
 
 #define HOOK_PREFIX _tHook_
 
-#define tHook(name, source, target, type) \
-    _tLoaderSectionStart;                                                                                           \
-    tloader::BranchHook TOKENPASTE2(HOOK_PREFIX, TOKENPASTE2(name, __LINE__)) = { tloader::DataMagic::BranchHook, (u32*)source, target, type };  \
+#define tHook(name, addr, target, type) \
+    _tLoaderSectionStart;               \
+    tloader::BranchHook TOKENPASTE2(HOOK_PREFIX, TOKENPASTE2(name, addr)) = { tloader::DataMagic::BranchHook, (u32*)addr, target, type }; \
     _tLoaderSectionEnd
 
-#define tPointer(name, source, target)                                                                             \
-    _tLoaderSectionStart;                                                                                           \
-    tloader::PointerHook TOKENPASTE2(HOOK_PREFIX, TOKENPASTE2(name, __LINE__)) = { tloader::DataMagic::PointerHook, (u32*)source, target, 0 };    \
+#define tPointer(name, addr, target) \
+    _tLoaderSectionStart;            \
+    tloader::PointerHook TOKENPASTE2(HOOK_PREFIX, TOKENPASTE2(name, addr)) = { tloader::DataMagic::PointerHook, (u32*)addr, target, 0 }; \
     _tLoaderSectionEnd

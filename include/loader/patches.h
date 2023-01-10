@@ -17,10 +17,10 @@ namespace tloader {
 
 #define _tPatch(name, addr, bits, ...) \
     _tLoaderSectionStart; \
-    const u##bits TOKENPASTE2(name, TOKENPASTE2(_, __LINE__))[] = { __VA_ARGS__ }; \
-    tloader::Patch TOKENPASTE2(PATCH_PREFIX, TOKENPASTE2(name, __LINE__)) = { \
-        tloader::DataMagic::Patch, (u32*)addr, sizeof(TOKENPASTE2(name, TOKENPASTE2(_, __LINE__))) / sizeof(u##bits), \
-        bits, (void*)&TOKENPASTE2(name, TOKENPASTE2(_, __LINE__)) \
+    const u##bits TOKENPASTE2(TOKENPASTE2(PATCH_PREFIX, name), TOKENPASTE2(_, addr))[] = { __VA_ARGS__ }; \
+    tloader::Patch TOKENPASTE2(PATCH_PREFIX, TOKENPASTE2(name, addr)) = { \
+        tloader::DataMagic::Patch, (u32*)addr, sizeof(TOKENPASTE2(TOKENPASTE2(PATCH_PREFIX, name), TOKENPASTE2(_, addr))) / sizeof(u##bits), \
+        bits, (void*)&TOKENPASTE2(TOKENPASTE2(PATCH_PREFIX, name), TOKENPASTE2(_, addr)) \
     }; \
     _tLoaderSectionEnd
 
