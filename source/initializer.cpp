@@ -51,6 +51,47 @@ void initialize() {
     // Init RPL libraries
     InitOSFunctionPointers();
     InitGX2FunctionPointers();
+    InitFSFunctionPointers();
+
+    FSInit();
+
+    FSClient* client = (FSClient*)MEMAllocFromDefaultHeap(sizeof(FSClient));
+    if (!client) {
+        PRINT(LogColor::Red, "Unable to allocate FSClient!");
+    }
+
+    FSCmdBlock* cmd = (FSCmdBlock*)MEMAllocFromDefaultHeap(sizeof(FSCmdBlock));
+    if (!cmd) {
+        PRINT(LogColor::Red, "Unable to allocate FSCmdBlock!");
+    }
+
+    const u32 BUFFER_SIZE = 1024;
+
+    u8* buffer = (u8*)MEMAllocFromDefaultHeapEx(BUFFER_SIZE, FS_IO_BUFFER_ALIGN);
+    if (!buffer) {
+        PRINT(LogColor::Red, "Unable to allocate buffer!");
+    }
+
+    OSBlockSet(buffer, 0, BUFFER_SIZE);
+
+    FSAddClient(client, FS_RET_NO_ERROR);
+    FSInitCmdBlock(cmd);
+
+    char path[FS_MAX_ARGPATH_SIZE];
+    strncpy(path, "/vol/content/rpl.txt", FS_MAX_ARGPATH_SIZE);
+
+    FSFileHandle handle;
+    FSOpenFile(client, cmd, path, "r", &handle, FS_RET_NO_ERROR);
+    FSReadFile(client, cmd, buffer, 1, BUFFER_SIZE, handle, 0, FS_RET_NO_ERROR);
+
+    PRINT("RPLs: ", LogColor::Yellow, (char*)buffer);
+
+    // TODO: split each line into its own string for passing to OSDynLoad_Acquire
+
+    FSCloseFile(client, cmd, handle, FS_RET_NO_ERROR);
+    MEMFreeToDefaultHeap(client);
+    MEMFreeToDefaultHeap(cmd);
+    MEMFreeToDefaultHeap(buffer);
 
     PRINT("OSDynLoad_Acquire address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_Acquire);
     PRINT("OSDynLoad_FindExport address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_FindExport);

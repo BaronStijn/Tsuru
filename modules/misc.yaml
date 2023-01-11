@@ -8,6 +8,7 @@ Files:
   - dynlibs/os.cpp
   - dynlibs/gx2.cpp
   - dynlibs/h264.cpp
+  - dynlibs/fs.cpp
   - hitboxcollider.cpp
   - utils.cpp
   - profileres.cpp

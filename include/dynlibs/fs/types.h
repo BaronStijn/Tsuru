@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef packed
+#define packed __attribute__((packed))
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -32,65 +36,65 @@ extern "C" {
 #define FS_CLIENT_SIZE                  0x1700
 #define FS_CMD_BLOCK_SIZE               0xA80
 
-typedef struct FSClient_ {
-    u8 buffer[FS_CLIENT_SIZE];
-} FSClient;
+    typedef struct FSClient_ {
+        u8 buffer[FS_CLIENT_SIZE];
+    } FSClient;
 
-typedef struct FSCmdBlock_ {
-    u8 buffer[FS_CMD_BLOCK_SIZE];
-} FSCmdBlock;
+    typedef struct FSCmdBlock_ {
+        u8 buffer[FS_CMD_BLOCK_SIZE];
+    } FSCmdBlock;
 
-typedef struct {
-    u32 flag;
-    u32 permission;
-    u32 ownerID;
-    u32 groupID;
-    u32 size;
-    u32 alloc_size;
-    u64 quota_size;
-    u32 entID;
-    u64 ctime;
-    u64 mtime;
-    u8 attributes[48];
-} packed FSStat;
+    struct FSStat {
+        u32 flag;
+        u32 permission;
+        u32 ownerID;
+        u32 groupID;
+        u32 size;
+        u32 alloc_size;
+        u64 quota_size;
+        u32 entID;
+        u64 ctime;
+        u64 mtime;
+        u8 attributes[48];
+    } packed;
 
-typedef struct {
-    FSStat stat;
-    char name[FS_MAX_ENTNAME_SIZE];
-} FSDirEntry;
+    typedef struct {
+        FSStat stat;
+        char name[FS_MAX_ENTNAME_SIZE];
+    } FSDirEntry;
 
-typedef void (*FSAsyncCallback)(FSClient * pClient, FSCmdBlock * pCmd, s32 result, void *context);
-typedef struct {
-    FSAsyncCallback userCallback;
-    void* userContext;
-    OSMessageQueue* ioMsgQueue;
-} FSAsyncParams;
+    typedef void (*FSAsyncCallback)(FSClient* pClient, FSCmdBlock* pCmd, s32 result, void* context);
+    typedef struct {
+        FSAsyncCallback userCallback;
+        void* userContext;
+        OSMessageQueue* ioMsgQueue;
+    } FSAsyncParams;
 
-struct FSAsyncResult_;
+    struct FSAsyncResult_;
 
-typedef struct {
-    struct FSAsyncResult_* data;
-    u32 unkwn1;
-    u32 unkwn2;
-    u32 unkwn3; // always 0x08
-} packed FSMessage;
+    struct FSMessage {
+        struct FSAsyncResult_* data;
+        u32 unkwn1;
+        u32 unkwn2;
+        u32 unkwn3; // always 0x08
+    } packed;
 
-typedef struct FSAsyncResult_ {
-    FSAsyncParams userParams;
-    FSMessage ioMsg;
+    typedef struct FSAsyncResult_ {
+        FSAsyncParams userParams;
+        FSMessage ioMsg;
 
-    FSClient* client;
-    FSCmdBlock* block;
-    u32 result;
-} FSAsyncResult;
+        FSClient* client;
+        FSCmdBlock* block;
+        u32 result;
+    } FSAsyncResult;
 
-typedef enum {
-} FSVolumeState;
+    typedef enum {
+    } FSVolumeState;
 
-typedef s32 FSFileHandle;
-typedef s32 FSDirHandle;
-typedef s32 FSStatus;
-typedef u32 FSRetFlag;
+    typedef s32 FSFileHandle;
+    typedef s32 FSDirHandle;
+    typedef s32 FSStatus;
+    typedef u32 FSRetFlag;
 
 #ifdef __cplusplus
 }
