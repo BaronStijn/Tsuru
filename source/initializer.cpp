@@ -84,7 +84,8 @@ void initialize() {
     FSOpenFile(client, cmd, path, "r", &handle, FS_RET_NO_ERROR);
     FSReadFile(client, cmd, buffer, 1, BUFFER_SIZE, handle, 0, FS_RET_NO_ERROR);
 
-    PRINT("RPLs: ", LogColor::Yellow, (char*)buffer);
+    if (*buffer == NULL) PRINT(LogColor::Yellow, "rpl.txt is empty or non-existent, no RPLs to load.");
+    else PRINT("RPLs: ", LogColor::Yellow, (char*)buffer);
 
     // TODO: split each line into its own string for passing to OSDynLoad_Acquire
 
