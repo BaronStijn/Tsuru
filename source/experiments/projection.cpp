@@ -1,3 +1,5 @@
+#ifdef EXPERIMENTS
+
 #include "agl/lyr/renderer.h"
 #include "agl/lyr/layer.h"
 #include "sead/projection.h"
@@ -71,3 +73,5 @@ void makePerspectiveLevel() {
 
     cam->doUpdateMatrix(&cam->matrix);
 }
+
+#endif
