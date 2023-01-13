@@ -1,7 +1,5 @@
 
 ---
-Files:
-  - initializer.cpp
 Hooks:
   - type: branch
     instr: b

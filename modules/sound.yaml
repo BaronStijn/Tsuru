@@ -1,8 +1,5 @@
 
 ---
-Files:
-  - sound/musicplayer.cpp
-  - sound/sfxreverb.cpp
 Hooks:
 # Restore SFX reverb values
   - type: branch

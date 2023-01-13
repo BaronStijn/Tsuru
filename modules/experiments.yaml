@@ -1,8 +1,5 @@
 
 ---
-Files:
-  - experiments/projection.S
-  - experiments/projection.cpp
 Hooks:
 # Orthographic projection on World Map
   # Set the projection in the layer

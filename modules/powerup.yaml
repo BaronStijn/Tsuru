@@ -1,6 +1,4 @@
 ---
-Files:
-  - powerup.cpp
 Hooks:
   - type: branch
     instr: bl

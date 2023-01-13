@@ -1,8 +1,5 @@
 
 ---
-Files:
-  - yoshicolors.S
-  - yoshicolors.cpp
 Hooks:
 # Redirect the YoshiModel constructor to use the custom array instead of the default one
   - type: branch

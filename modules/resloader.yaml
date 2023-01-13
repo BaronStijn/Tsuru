@@ -1,8 +1,5 @@
 
 ---
-Files:
-  - levelrespreloader.S
-  - levelrespreloader.cpp
 Hooks:
   - type: branch
     instr: bl

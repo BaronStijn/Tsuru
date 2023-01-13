@@ -1,8 +1,5 @@
 
 ---
-Files:
-  - waves.S
-  - waves.cpp
 Hooks:
 # Apply waves
   # Water

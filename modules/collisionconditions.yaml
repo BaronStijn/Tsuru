@@ -1,7 +1,5 @@
 
 ---
-Files:
-  - collisionconditions.cpp
 Hooks:
 # Allow Yoshi bounce on Urchin
   - type: funcptr

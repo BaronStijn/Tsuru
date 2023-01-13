@@ -1,7 +1,5 @@
 
 ---
-Files:
-  - snowparticles.S
 Hooks:
 # Save the colors from the spritedata
   - type: branch

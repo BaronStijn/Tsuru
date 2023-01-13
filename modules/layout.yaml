@@ -1,6 +1,4 @@
 ---
-Files:
-  - layout.cpp
 Hooks:
   - type: branch
     instr: bl

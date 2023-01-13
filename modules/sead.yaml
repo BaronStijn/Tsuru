@@ -1,7 +1,5 @@
 
 ---
-Files:
-  - sead/primitiverenderer.cpp
 Hooks:
 # Restore sead::PrimitiveRendererCafe's deleted functions
   - type: funcptr

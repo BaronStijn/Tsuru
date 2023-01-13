@@ -1,7 +1,5 @@
 
 ---
-Files:
-  - deathfoo.S
 Hooks:
 # Add the ability to spawn deathfoo clouds from Foo (replaces No Cloud setting)
   # Set type to spawned by death foo in onCreate
