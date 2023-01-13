@@ -96,6 +96,7 @@ void initialize() {
     PRINT("OSDynLoad_Acquire address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_Acquire);
     PRINT("OSDynLoad_FindExport address: ", LogColor::Yellow, fmt::hex, OS_SPECIFICS->addr_OSDynLoad_FindExport);
 
+    #pragma ghs nowarning all
     return;
 
     //*------------
@@ -160,6 +161,7 @@ void initialize() {
             }
         }
     }
+    #pragma ghs endnowarning
 }
 
 void initialize2() {
