@@ -5,29 +5,6 @@ ModulesDir: modules
 IncludeDir: include
 SourceDir: source
 RpxDir: +/rpxs
-Modules:
-  - cheats               # Cheat menu
-  - collisionconditions  # Fixes collision conditions for some actors
-  - csscripts            # Custom world map scripts
-  - customactors         # Custom sprites/actors
-  - deathfoo             # Toxic cloud foo patch
-  - debug                # Debugging features
-# - experiments          # Experimental things
-  - framebuffer          # Framebuffer-related fixes
-  - initializer          # Initializer
-  - layout               # Custom layouts
-  - misc                 # Miscellaneous items
-  - powerup              # Custom powerups
-  - profile              # Extra profile and sprite slots
-  - resloader            # Resource loader
-  - sarcloader           # Allow loading uncompressed .sarc levels
-  - savemgr              # Manages the custom savedata files
-  - sead                 # Patches for the sead library
-  - snowparticles        # Allows changing snow particle colors from spritedata
-  - sound                # Patches that affect sound
-  - titlescreen          # Title screen patches
-  - waves                # Wavy liquids
-  - yoshicolors          # Extra colors for Yoshi
 Defines:
   - NO_INTELLISENSE_HACK
   - Cemu
@@ -37,11 +14,7 @@ Targets:
   US: ~
   EU: ~
   JP: ~
-  Template/Tricky:
-    Modules:
-      - buffs # What if we made the game a bit more tricky...
-    Remove/Modules:
-      - yoshicolors
+  Template/Tricky: # What if we made the game a bit more tricky...
     Defines:
       - TARGET_TRICKY
   Tricky_US:
